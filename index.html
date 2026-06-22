@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Happy Birthday on July 1st!</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            
+            /* 背景圖（星空海浪） */
+            background-image: url('photo_2026-06-20_16-00-15.jpg');
+            background-size: cover;       
+            background-position: center;   
+            background-repeat: no-repeat;  
+            
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 互動舞台區 */
+        .stage-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ================= 信封結構 ================= */
+        .envelope-wrapper {
+            position: absolute; 
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            width: 280px; 
+            height: 180px;
+            background-color: #ffffff; 
+            box-shadow: 0 12px 35px rgba(0, 100, 150, 0.15); 
+            border-radius: 0 0 10px 10px;
+            z-index: 5;
+            transform-origin: center center;
+        }
+
+        /* 信封上蓋 */
+        .envelope-top {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid transparent;
+            border-right: 140px solid transparent;
+            border-top: 100px solid #f0f4f8; 
+            transform-origin: top;
+            z-index: 8;
+        }
+
+        /* 信封正面口袋 */
+        .envelope-front {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-left: 140px solid #f7fafc;
+            border-right: 140px solid #f7fafc;
+            border-bottom: 90px solid #e2e8f0;
+            z-index: 7;
+            border-radius: 0 0 10px 10px;
+        }
+
+        /* ================= 圖1：小人 (.png) ================= */
+        .character {
+            position: absolute;
+            width: 120px;  
+            height: 120px;
+            background-image: url('image 1140.png'); 
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center bottom;
+            bottom: calc(50% - 90px); 
+            right: -150px; 
+            z-index: 10; 
+            display: none;
+        }
+
+        /* ================= 圖2：餐券卡片容器 ================= */
+        .card-ticket-container {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.25); 
+            width: 280px;  
+            height: 448px; 
+            opacity: 0;
+            z-index: 6; 
+            display: flex;
+            flex-direction: column; /* 讓圖片與依附在底部的文字垂直排列 */
+            justify-content: center;
+            align-items: center;
+            transform-origin: center center;
+        }
+
+        /* 圖2 實際圖片本體 */
+        .card-ticket-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+        }
+
+        /* 當全螢幕激活時的強制覆蓋樣式 */
+        .card-ticket-container.fullscreen {
+            width: 100vw !important;
+            height: 100vh !important;
+            max-width: 100vw !important;
+            max-height: 100vh !important;
+            transform: translate(-50%, -50%) scale(1) !important; 
+        }
+
+        /* 確保全螢幕縮放時，圖片比例縮小一點，把空間完美留在餐券圖片的底部 */
+        .card-ticket-container.fullscreen img {
+            width: 100% !important;
+            height: 72% !important; 
+            object-fit: contain !important; 
+            margin-top: -8%; 
+        }
+
+        /* 核心修正：將提示文字放進卡片容器，使其位置完美貼在餐券（信封底）的下方 */
+        .save-tip {
+            font-size: 19px; 
+            color: #ffffff;
+            font-weight: bold;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
+            margin-top: 10px; /* 精準調整文字與餐券圖片底緣的距離 */
+            opacity: 0; 
+            display: none;
+            pointer-events: none;
+        }
+
+        /* ================= 按鈕常駐頂層控制區 ================= */
+        .ui-overlay-container {
+            position: absolute;
+            bottom: 6%; /* 按鈕固定在手機螢幕底層 */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 半透明極光按鈕 */
+        .btn {
+            padding: 12px 40px;
+            font-size: 16px;
+            background: linear-gradient(135deg, rgba(100, 210, 255, 0.85), rgba(170, 110, 255, 0.85)); 
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(5px); 
+            box-shadow: 0 8px 25px rgba(100, 180, 255, 0.3);
+            transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, rgba(50, 190, 255, 0.95), rgba(150, 80, 255, 0.95));
+            box-shadow: 0 10px 30px rgba(100, 180, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background: linear-gradient(135deg, rgba(150, 150, 150, 0.6), rgba(100, 100, 100, 0.6)) !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+            transform: none !important;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stage-container" id="stageContainer">
+        <div class="envelope-wrapper" id="envelope">
+            <div class="envelope-top" id="envTop"></div>
+            <div class="envelope-front"></div>
+        </div>
+        
+        <div class="card-ticket-container" id="ticketContainer">
+            <img src="Group 1597880818.png" id="ticketImg" alt="驚喜大餐券">
+            <div class="save-tip" id="saveTip">✨ 長按保存！✨</div>
+        </div>
+        
+        <div class="character" id="character"></div>
+
+        <div class="ui-overlay-container">
+            <button class="btn" id="startBtn">點擊開啟驚喜 ✨</button>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const character = document.getElementById('character');
+        const envelope = document.getElementById('envelope');
+        const envTop = document.getElementById('envTop');
+        const ticketContainer = document.getElementById('ticketContainer');
+        const saveTip = document.getElementById('saveTip');
+
+        startBtn.addEventListener('click', () => {
+            // 1. 動畫開始，僅禁用按鈕點擊，完全不讓它淡出隱藏
+            startBtn.disabled = true;
+            
+            // 2. 重置提示字狀態
+            saveTip.style.display = 'none';
+            saveTip.style.opacity = '0';
+            
+            // 3. 頁面元件狀態重置
+            ticketContainer.classList.remove('fullscreen');
+            gsap.set(character, { display: 'block', x: 0, y: 0, scale: 1, opacity: 1, scaleX: 1 });
+            gsap.set(envTop, { borderTopColor: '#f0f4f8', top: 0, borderBottom: '0px solid transparent' });
+            gsap.set(ticketContainer, { x: 0, y: 0, left: '50%', top: '50%', xPercent: -50, yPercent: -50, scale: 0.25, opacity: 0, rotation: 0, zIndex: 6 });
+            gsap.set(envelope, { display: 'block', opacity: 1, scale: 1, y: 0 });
+
+            const stageWidth = window.innerWidth;
+            const targetX = -(stageWidth / 2 + 60); 
+
+            const tl = gsap.timeline();
+
+            // 小人衝刺與折返跑
+            tl.to(character, { x: -stageWidth - 200, duration: 2.0, ease: "power1.inOut" })
+            .to(character, { scaleX: -1, duration: 0.1 })
+            .to(character, { x: -stageWidth * 0.3, duration: 1.2, ease: "power1.inOut" })
+            .to(character, { scaleX: 1, duration: 0.1 })
+            .to(character, { x: targetX, duration: 0.9, ease: "power1.out" })
+            
+            // 原地跳兩下
+            .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
+            .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
+            .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
+            .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
+            
+            // 跳進信封袋
+            .to(character, { y: -140, x: targetX - 30, scale: 0.5, duration: 0.35, ease: "power1.out" })
+            .to(character, { y: -10, opacity: 0, duration: 0.25, ease: "power1.in" })
+            .to(envelope, { scale: 1.08, yoyo: true, repeat: 1, duration: 0.08 }, "-=0.2")
+            
+            // 信封打開
+            .to(envTop, { borderTop: '0px solid transparent', borderBottom: '100px solid #cbd5e1', top: -100, duration: 0.4, ease: "power1.inOut" }, "+=0.1")
+            
+            // 圖2 大卡片抽出
+            .to(ticketContainer, { opacity: 1, y: -140, scale: 0.5, duration: 0.5, ease: "power2.out" })
+            
+            // 全螢幕滿版與旋轉
+            .queue(function(next) {
+                ticketContainer.style.zIndex = "9999";
+                next();
+            })
+            .to(envelope, {
+                opacity: 0,
+                duration: 0.4,
+                onComplete: () => {
+                    envelope.style.display = 'none';
+                }
+            })
+            .to(ticketContainer, {
+                y: 0,               
+                rotation: 360,      
+                duration: 1.0,
+                ease: "power3.inOut",
+                onComplete: () => {
+                    ticketContainer.classList.add('fullscreen');
+                }
+            }, "-=0.4")
+            
+            // 4. 動畫結束：平滑將提示字（此時在餐券正下方）顯示，按鈕字體轉為「再看一次」並解鎖
+            .queue(function(next) {
+                saveTip.style.display = 'block';
+                startBtn.innerHTML = "再看一次 🔄";
+                next();
+            })
+            .to(saveTip, { opacity: 1, duration: 0.4 })
+            .queue(function(next) {
+                startBtn.disabled = false;
+                next();
+            });
+        });
+    </script>
+</body>
+</html>
