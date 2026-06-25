@@ -16,7 +16,7 @@
             height: 100%;
             overflow: hidden;
             
-            /* 背景圖（星空海浪） */
+            /* 浪漫花園窗紗背景 */
             background-image: url('photo_2026-06-20_16-00-15.jpg');
             background-size: cover;       
             background-position: center;   
@@ -54,7 +54,7 @@
             transform-origin: center center;
         }
 
-        /* 信封上蓋 */
+        /* 信封上蓋（初始：向下折疊） */
         .envelope-top {
             position: absolute;
             top: 0;
@@ -64,6 +64,7 @@
             border-left: 140px solid transparent;
             border-right: 140px solid transparent;
             border-top: 100px solid #f0f4f8; 
+            border-bottom: 0px solid transparent; /* 初始不要有底邊框 */
             transform-origin: top;
             z-index: 8;
         }
@@ -97,55 +98,40 @@
             display: none;
         }
 
-        /* ================= 圖2：餐券卡片容器 ================= */
+        /* ================= 餐券卡片容器 ================= */
         .card-ticket-container {
             position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%) scale(0.25); 
-            width: 280px;  
-            height: 448px; 
-            opacity: 0;
-            z-index: 6; 
-            display: flex;
-            flex-direction: column; /* 讓圖片與依附在底部的文字垂直排列 */
+            top: 0;
+            left: 0;
+            width: 100%;  
+            height: 100%; 
+            z-index: 20; 
+            display: none;
+            flex-direction: column; 
             justify-content: center;
             align-items: center;
+            pointer-events: none;
+        }
+
+        /* 實際圖片本體 */
+        .card-ticket-container img {
+            width: 90%;
+            height: 70%;
+            object-fit: contain; 
+            transform: scale(0.25); 
+            opacity: 0;
+            pointer-events: auto; 
             transform-origin: center center;
         }
 
-        /* 圖2 實際圖片本體 */
-        .card-ticket-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; 
-        }
-
-        /* 當全螢幕激活時的強制覆蓋樣式 */
-        .card-ticket-container.fullscreen {
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: 100vw !important;
-            max-height: 100vh !important;
-            transform: translate(-50%, -50%) scale(1) !important; 
-        }
-
-        /* 確保全螢幕縮放時，圖片比例縮小一點，把空間完美留在餐券圖片的底部 */
-        .card-ticket-container.fullscreen img {
-            width: 100% !important;
-            height: 72% !important; 
-            object-fit: contain !important; 
-            margin-top: -8%; 
-        }
-
-        /* 核心修正：將提示文字放進卡片容器，使其位置完美貼在餐券（信封底）的下方 */
+        /* 提示文字 */
         .save-tip {
             font-size: 19px; 
             color: #ffffff;
             font-weight: bold;
             letter-spacing: 3px;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(0, 0, 0, 0.5);
-            margin-top: 10px; /* 精準調整文字與餐券圖片底緣的距離 */
+            text-shadow: 0 2px 10px rgba(70, 100, 150, 0.6), 0 0 15px rgba(255, 255, 255, 0.5);
+            margin-top: 20px; 
             opacity: 0; 
             display: none;
             pointer-events: none;
@@ -154,7 +140,7 @@
         /* ================= 按鈕常駐頂層控制區 ================= */
         .ui-overlay-container {
             position: absolute;
-            bottom: 6%; /* 按鈕固定在手機螢幕底層 */
+            bottom: 6%; 
             left: 50%;
             transform: translateX(-50%);
             z-index: 99999; 
@@ -163,36 +149,36 @@
             align-items: center;
         }
 
-        /* 半透明極光按鈕 */
+        /* 磨砂質感「天空藍」按鈕 */
         .btn {
-            padding: 12px 40px;
+            padding: 13px 44px;
             font-size: 16px;
-            background: linear-gradient(135deg, rgba(100, 210, 255, 0.85), rgba(170, 110, 255, 0.85)); 
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.4);
+            background: linear-gradient(135deg, rgba(142, 210, 255, 0.8), rgba(114, 162, 255, 0.8)); 
+            color: #ffffff;
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
             border-radius: 30px;
             cursor: pointer;
-            backdrop-filter: blur(5px); 
-            box-shadow: 0 8px 25px rgba(100, 180, 255, 0.3);
+            backdrop-filter: blur(6px); 
+            box-shadow: 0 8px 25px rgba(114, 162, 255, 0.25);
             transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
             font-weight: bold;
             letter-spacing: 2px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            text-shadow: 0 1px 4px rgba(50, 80, 130, 0.3);
             white-space: nowrap;
         }
 
         .btn:hover {
-            background: linear-gradient(135deg, rgba(50, 190, 255, 0.95), rgba(150, 80, 255, 0.95));
-            box-shadow: 0 10px 30px rgba(100, 180, 255, 0.5);
+            background: linear-gradient(135deg, rgba(115, 195, 255, 0.95), rgba(85, 140, 255, 0.95));
+            box-shadow: 0 10px 30px rgba(85, 140, 255, 0.45);
             transform: translateY(-2px);
         }
 
         .btn:disabled {
-            background: linear-gradient(135deg, rgba(150, 150, 150, 0.6), rgba(100, 100, 100, 0.6)) !important;
+            background: linear-gradient(135deg, rgba(210, 215, 225, 0.6), rgba(180, 185, 195, 0.6)) !important;
             box-shadow: none !important;
             cursor: not-allowed;
             transform: none !important;
-            opacity: 0.8;
+            opacity: 0.7;
         }
     </style>
 </head>
@@ -206,13 +192,13 @@
         
         <div class="card-ticket-container" id="ticketContainer">
             <img src="Group 1597880818.png" id="ticketImg" alt="驚喜大餐券">
-            <div class="save-tip" id="saveTip">✨ 長按保存！✨</div>
+            <div class="save-tip" id="saveTip">長按保存！</div>
         </div>
         
         <div class="character" id="character"></div>
 
         <div class="ui-overlay-container">
-            <button class="btn" id="startBtn">點擊開啟驚喜 ✨</button>
+            <button class="btn" id="startBtn"> 點擊開啟 </button>
         </div>
     </div>
 
@@ -222,85 +208,80 @@
         const envelope = document.getElementById('envelope');
         const envTop = document.getElementById('envTop');
         const ticketContainer = document.getElementById('ticketContainer');
+        const ticketImg = document.getElementById('ticketImg');
         const saveTip = document.getElementById('saveTip');
 
         startBtn.addEventListener('click', () => {
-            // 1. 動畫開始，僅禁用按鈕點擊，完全不讓它淡出隱藏
+            // 1. 鎖定按鈕
             startBtn.disabled = true;
             
-            // 2. 重置提示字狀態
+            // 2. 隱藏大餐券與提示字
             saveTip.style.display = 'none';
             saveTip.style.opacity = '0';
+            ticketContainer.style.display = 'none';
+            gsap.set(ticketImg, { opacity: 0, scale: 0.25, rotation: 0 });
             
-            // 3. 頁面元件狀態重置
-            ticketContainer.classList.remove('fullscreen');
+            // 3. 【徹底修正重播跑掉】完整重置信封與小人初始狀態
             gsap.set(character, { display: 'block', x: 0, y: 0, scale: 1, opacity: 1, scaleX: 1 });
-            gsap.set(envTop, { borderTopColor: '#f0f4f8', top: 0, borderBottom: '0px solid transparent' });
-            gsap.set(ticketContainer, { x: 0, y: 0, left: '50%', top: '50%', xPercent: -50, yPercent: -50, scale: 0.25, opacity: 0, rotation: 0, zIndex: 6 });
             gsap.set(envelope, { display: 'block', opacity: 1, scale: 1, y: 0 });
+            
+            // 這裡把掀開過的上蓋邊框厚度、顏色與位置完全復原
+            gsap.set(envTop, { 
+                top: 0,
+                borderTop: '100px solid #f0f4f8',
+                borderBottom: '0px solid transparent',
+                borderLeft: '140px solid transparent',
+                borderRight: '140px solid transparent'
+            });
 
             const stageWidth = window.innerWidth;
             const targetX = -(stageWidth / 2 + 60); 
 
             const tl = gsap.timeline();
 
-            // 小人衝刺與折返跑
+            // --- 第一階段：小人折返跑與跳入 ---
             tl.to(character, { x: -stageWidth - 200, duration: 2.0, ease: "power1.inOut" })
-            .to(character, { scaleX: -1, duration: 0.1 })
-            .to(character, { x: -stageWidth * 0.3, duration: 1.2, ease: "power1.inOut" })
-            .to(character, { scaleX: 1, duration: 0.1 })
-            .to(character, { x: targetX, duration: 0.9, ease: "power1.out" })
+              .to(character, { scaleX: -1, duration: 0.1 })
+              .to(character, { x: -stageWidth * 0.3, duration: 1.2, ease: "power1.inOut" })
+              .to(character, { scaleX: 1, duration: 0.1 })
+              .to(character, { x: targetX, duration: 0.9, ease: "power1.out" })
             
-            // 原地跳兩下
-            .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
-            .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
-            .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
-            .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
+            // 原地興奮跳動
+              .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
+              .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
+              .to(character, { y: -70, duration: 0.16, ease: "power1.out" })
+              .to(character, { y: 0, duration: 0.16, ease: "power1.in" })
             
-            // 跳進信封袋
-            .to(character, { y: -140, x: targetX - 30, scale: 0.5, duration: 0.35, ease: "power1.out" })
-            .to(character, { y: -10, opacity: 0, duration: 0.25, ease: "power1.in" })
-            .to(envelope, { scale: 1.08, yoyo: true, repeat: 1, duration: 0.08 }, "-=0.2")
+            // 跳進信封口袋中
+              .to(character, { y: -160, x: targetX - 40, scale: 0.5, duration: 0.35, ease: "power1.out" })
+              .to(character, { y: -10, opacity: 0, duration: 0.25, ease: "power1.in" })
+              // 信封微微震動
+              .to(envelope, { scale: 1.05, yoyo: true, repeat: 1, duration: 0.08 }, "-=0.2")
             
-            // 信封打開
-            .to(envTop, { borderTop: '0px solid transparent', borderBottom: '100px solid #cbd5e1', top: -100, duration: 0.4, ease: "power1.inOut" }, "+=0.1")
+            // --- 第二階段：信封上蓋掀開 ---
+              .to(envTop, { borderTop: '0px solid transparent', borderBottom: '100px solid #cbd5e1', top: -100, duration: 0.4, ease: "power1.inOut" }, "+=0.1")
             
-            // 圖2 大卡片抽出
-            .to(ticketContainer, { opacity: 1, y: -140, scale: 0.5, duration: 0.5, ease: "power2.out" })
+            // --- 第三階段：信封隱藏，大餐券無縫登場並張力放大 ---
+              .to(envelope, { opacity: 0, duration: 0.05 })
+              .call(() => {
+                  ticketContainer.style.display = 'flex';
+              })
+              .to(ticketImg, {
+                  opacity: 1,
+                  scale: 1,
+                  duration: 0.7,
+                  ease: "power4.out"
+              })
             
-            // 全螢幕滿版與旋轉
-            .queue(function(next) {
-                ticketContainer.style.zIndex = "9999";
-                next();
-            })
-            .to(envelope, {
-                opacity: 0,
-                duration: 0.4,
-                onComplete: () => {
-                    envelope.style.display = 'none';
-                }
-            })
-            .to(ticketContainer, {
-                y: 0,               
-                rotation: 360,      
-                duration: 1.0,
-                ease: "power3.inOut",
-                onComplete: () => {
-                    ticketContainer.classList.add('fullscreen');
-                }
-            }, "-=0.4")
-            
-            // 4. 動畫結束：平滑將提示字（此時在餐券正下方）顯示，按鈕字體轉為「再看一次」並解鎖
-            .queue(function(next) {
-                saveTip.style.display = 'block';
-                startBtn.innerHTML = "再看一次 🔄";
-                next();
-            })
-            .to(saveTip, { opacity: 1, duration: 0.4 })
-            .queue(function(next) {
-                startBtn.disabled = false;
-                next();
-            });
+            // --- 第四階段：完成動畫，展現提示字與重置按鈕 ---
+              .call(() => {
+                  saveTip.style.display = 'block';
+                  startBtn.innerHTML = " 再看一次 ";
+              })
+              .to(saveTip, { opacity: 1, duration: 0.4 })
+              .call(() => {
+                  startBtn.disabled = false;
+              });
         });
     </script>
 </body>
