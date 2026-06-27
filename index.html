@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Happy Birthday on July 1st!</title>
+    <title>互動信封驚喜</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <style>
         * {
@@ -37,6 +37,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            perspective: 1000px; /* 為 3D 翻轉提供透視感 */
         }
 
         /* ================= 信封結構 ================= */
@@ -64,7 +65,7 @@
             border-left: 140px solid transparent;
             border-right: 140px solid transparent;
             border-top: 100px solid #f0f4f8; 
-            border-bottom: 0px solid transparent; /* 初始不要有底邊框 */
+            border-bottom: 0px solid transparent;
             transform-origin: top;
             z-index: 8;
         }
@@ -98,7 +99,7 @@
             display: none;
         }
 
-        /* ================= 餐券卡片容器 ================= */
+        /* ================= 3D 翻轉卡片容器 ================= */
         .card-ticket-container {
             position: absolute;
             top: 0;
@@ -113,28 +114,50 @@
             pointer-events: none;
         }
 
-        /* 實際圖片本體 */
-        .card-ticket-container img {
+        /* 3D 翻轉本體外框 */
+        .flip-card-inner {
+            position: relative;
             width: 90%;
             height: 70%;
-            object-fit: contain; 
+            cursor: pointer;
+            pointer-events: auto; 
+            transform-style: preserve-3d; /* 開啟子元件的 3D 空間渲染 */
             transform: scale(0.25); 
             opacity: 0;
-            pointer-events: auto; 
-            transform-origin: center center;
         }
 
-        /* 提示文字 */
+        /* 正反面卡片的共通樣式 */
+        .flip-card-inner img {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            object-fit: contain; 
+            backface-visibility: hidden; /* 翻到背面時，隱藏正面 */
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* 卡片 2 (背面) 初始先水平旋轉 180 度 */
+        .card-back {
+            transform: rotateY(180deg);
+        }
+
+        /* 提示文字修正：移到畫面上方，避免與底部按鈕重疊 */
         .save-tip {
+            position: absolute;
+            top: 8%; /* 固定在上方空白處 */
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 19px; 
             color: #ffffff;
             font-weight: bold;
             letter-spacing: 3px;
             text-shadow: 0 2px 10px rgba(70, 100, 150, 0.6), 0 0 15px rgba(255, 255, 255, 0.5);
-            margin-top: 20px; 
             opacity: 0; 
             display: none;
             pointer-events: none;
+            text-align: center;
+            white-space: nowrap; /* 確保文字不換行 */
+            z-index: 30;
         }
 
         /* ================= 按鈕常駐頂層控制區 ================= */
@@ -191,8 +214,12 @@
         </div>
         
         <div class="card-ticket-container" id="ticketContainer">
-            <img src="Group 1597880818.png" id="ticketImg" alt="驚喜大餐券">
-            <div class="save-tip" id="saveTip">長按保存！</div>
+            <div class="save-tip" id="saveTip">點擊卡片翻面 / 長按保存！</div>
+            
+            <div class="flip-card-inner" id="flipCardInner">
+                <img src="Group 1597880818.png" class="card-front" id="cardFront" alt="驚喜大餐券正面">
+                <img src="Frame 587054.png" class="card-back" id="cardBack" alt="驚喜大餐券背面">
+            </div>
         </div>
         
         <div class="character" id="character"></div>
@@ -208,24 +235,46 @@
         const envelope = document.getElementById('envelope');
         const envTop = document.getElementById('envTop');
         const ticketContainer = document.getElementById('ticketContainer');
-        const ticketImg = document.getElementById('ticketImg');
+        const flipCardInner = document.getElementById('flipCardInner');
         const saveTip = document.getElementById('saveTip');
 
-        startBtn.addEventListener('click', () => {
-            // 1. 鎖定按鈕
-            startBtn.disabled = true;
+        let isFlipped = false; // 紀錄目前卡片是否翻面
+        let canFlip = false;   // 動態控制：只有當信封開啟、卡片放大定位後才允許點擊翻面
+
+        // 點擊卡片觸發 3D 翻轉
+        flipCardInner.addEventListener('click', () => {
+            if (!canFlip) return; 
+
+            isFlipped = !isFlipped;
             
-            // 2. 隱藏大餐券與提示字
+            // 使用 GSAP 進行 Y 軸 180 度翻轉
+            gsap.to(flipCardInner, {
+                rotationY: isFlipped ? 180 : 0,
+                duration: 0.6,
+                ease: "power2.inOut",
+                onStart: () => {
+                    // 翻轉時更新提示文字
+                    saveTip.innerHTML = isFlipped ? "點擊卡片翻回正面 / 長按保存！" : "點擊卡片翻面 / 長按保存！";
+                }
+            });
+        });
+
+        startBtn.addEventListener('click', () => {
+            // 1. 鎖定按鈕與翻轉狀態
+            startBtn.disabled = true;
+            canFlip = false;
+            isFlipped = false;
+            
+            // 2. 隱藏大餐券與提示字，並完整重置卡片 3D 旋轉角度
             saveTip.style.display = 'none';
             saveTip.style.opacity = '0';
             ticketContainer.style.display = 'none';
-            gsap.set(ticketImg, { opacity: 0, scale: 0.25, rotation: 0 });
+            gsap.set(flipCardInner, { opacity: 0, scale: 0.25, rotationY: 0 }); 
             
-            // 3. 【徹底修正重播跑掉】完整重置信封與小人初始狀態
+            // 3. 完整重置信封與小人初始狀態
             gsap.set(character, { display: 'block', x: 0, y: 0, scale: 1, opacity: 1, scaleX: 1 });
             gsap.set(envelope, { display: 'block', opacity: 1, scale: 1, y: 0 });
             
-            // 這裡把掀開過的上蓋邊框厚度、顏色與位置完全復原
             gsap.set(envTop, { 
                 top: 0,
                 borderTop: '100px solid #f0f4f8',
@@ -266,15 +315,19 @@
               .call(() => {
                   ticketContainer.style.display = 'flex';
               })
-              .to(ticketImg, {
+              .to(flipCardInner, {
                   opacity: 1,
                   scale: 1,
                   duration: 0.7,
-                  ease: "power4.out"
+                  ease: "power4.out",
+                  onComplete: () => {
+                      canFlip = true; // 動態放大定位完成後，允許點擊翻面
+                  }
               })
             
             // --- 第四階段：完成動畫，展現提示字與重置按鈕 ---
               .call(() => {
+                  saveTip.innerHTML = "點擊卡片翻面 / 長按保存！";
                   saveTip.style.display = 'block';
                   startBtn.innerHTML = " 再看一次 ";
               })
